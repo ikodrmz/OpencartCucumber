@@ -13,7 +13,7 @@ public class MyAccountPage extends BasePage {
 	@FindBy(xpath = "//a[@class='list-group-item'][normalize-space()='My Account']") // MyAccount Page heading
 	WebElement msgHeading;
 	
-	@FindBy(xpath = "//div[@class='list-group']//a[text()='Logout']")
+	@FindBy(xpath = "//a[@class='dropdown-item'][normalize-space()='Logout']")
 	WebElement lnkLogout;
 	
 

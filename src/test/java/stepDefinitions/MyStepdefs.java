@@ -20,13 +20,11 @@ import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import pageObjects.HomePage;
 import pageObjects.LoginPage;
 import pageObjects.MyAccountPage;
-//import utilities.DataReader;
+import utilities.DataReader;
 
 
 public class MyStepdefs {
@@ -81,6 +79,7 @@ public class MyStepdefs {
     @And("opens URL {string}")
     public void opensURL(String url) {
         driver.get(url);
+        driver.manage().window().maximize();
     }
 
     @When("user navigate to MyAccount menu")
@@ -125,5 +124,60 @@ public class MyStepdefs {
         }
     }
 
+//Data driven with provider
+    @Then("check User navigates to MyAccount Page by passing Email and Password with excel row {string}")
+    public void checkUserNavigatesToMyAccountPageByPassingEmailAndPasswordWithExcelRow(String rows) {
+        datamap=DataReader.data(System.getProperty("user.dir")+"\\testData\\Opencart_LoginData.xlsx", "Sheet1");
 
+        int index=Integer.parseInt(rows)-1;
+        String email= datamap.get(index).get("username");
+        String pwd= datamap.get(index).get("password");
+        String exp_res= datamap.get(index).get("res");
+
+        lp=new LoginPage(driver);
+        lp.setEmail(email);
+        lp.setPassword(pwd);
+        macc=new MyAccountPage(driver);
+
+        lp.clickLogin();
+        try
+        {
+            boolean targetpage=macc.isMyAccountPageExists();
+
+            if(exp_res.equals("Valid"))
+            {
+                if(targetpage==true)
+                {
+                    MyAccountPage myaccpage=new MyAccountPage(driver);
+                    myaccpage.clickLogout();
+                    Assert.assertTrue(true);
+                }
+                else
+                {
+                    Assert.assertTrue(false);
+                }
+            }
+
+            if(exp_res.equals("Invalid"))
+            {
+                if(targetpage==true)
+                {
+                    macc.clickLogout();
+                    Assert.assertTrue(false);
+                }
+                else
+                {
+                    Assert.assertTrue(true);
+                }
+            }
+
+
+        }
+        catch(Exception e)
+        {
+
+            Assert.assertTrue(false);
+        }
+        driver.close();
+    }
 }
